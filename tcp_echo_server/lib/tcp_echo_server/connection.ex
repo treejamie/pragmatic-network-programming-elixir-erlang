@@ -1,10 +1,19 @@
 defmodule TCPEchoServer.Connection do
+  use GenServer
+
   require Logger
+
   defstruct [:socket, buffer: <<>>]
 
   @spec start_link(:gen_tcp.socket()) :: GenServer.on_start()
   def start_link(socket) do
     GenServer.start_link(__MODULE__, socket)
+  end
+
+  @impl true
+  def init(socket) do
+    state = %__MODULE__{socket: socket}
+    {:ok, state}
   end
 
   @impl true
@@ -16,6 +25,7 @@ defmodule TCPEchoServer.Connection do
       ) do
     state = update_in(state.buffer, &(&1 <> data))
     state = handle_new_data(state)
+
     {:noreply, state}
   end
 
@@ -23,7 +33,7 @@ defmodule TCPEchoServer.Connection do
         {:tcp_closed, socket},
         %__MODULE__{socket: socket} = state
       ) do
-    {:stop, state}
+    {:stop, :normal, state}
   end
 
   def handle_info(
