@@ -33,4 +33,7 @@ defmodule Chat.Protocol do
   end
 
   defp decode_broadcast(<<_::binary>>), do: :incomplete
+
+  # page 43
+  # @spec encode_message
 end
