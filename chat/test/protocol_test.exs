@@ -3,6 +3,22 @@ defmodule Chat.ProtocolTest do
 
   alias Chat.Message.{Broadcast, Register}
 
+  describe "encode_message/1" do
+    test "can encode Register messages" do
+      message = %Register{username: "meg"}
+      iodata = Chat.Protocol.encode_message(message)
+
+      assert IO.iodata_to_binary(iodata) == <<0x01, 0x00, 0x03, "meg">>
+    end
+
+    test "can encode Broadcast messages" do
+      message = %Broadcast{from_username: "meg", contents: "hi"}
+      iodata = Chat.Protocol.encode_message(message)
+
+      assert IO.iodata_to_binary(iodata) == <<0x02, 0x00, 0x03, "meg", 0x00, 0x02, "hi">>
+    end
+  end
+
   describe "decode_message/1" do
     test "can decode register messages" do
       binary = <<0x01, 0x00, 0x03, "meg", "rest">>
